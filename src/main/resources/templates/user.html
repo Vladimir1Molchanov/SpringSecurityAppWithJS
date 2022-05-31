@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+<div class="row bg-dark text-white" style="margin: 0; padding: 5px">
+    <div class="col-11">
+        <td>
+            <b th:text="${userName}"></b>
+        </td>
+        <td th:text="${roles}"></td>
+    </div>
+    <div class="col-1" style="color: grey"><a th:href="@{/logout}">Logout</a></div>
+</div>
+<div class="row" style="margin-right: 0; margin-left: 0; box-sizing: border-box">
+    <div class="col-2" style="background: white; margin-top: 15px; padding: 0">
+        <button type="button" class="btn btn-primary btn-block buttonAdmin">User</button>
+    </div>
+    <div class="col-10" style="background: linear-gradient(to bottom, rgb(240, 240, 240), white);
+          padding: 0">
+        <div>
+            <h1>User information page</h1>
+            <div class="card">
+                <div class="card-header">
+                    <h5>About user</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover table-light">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Age</th>
+                            <th>Role(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td th:text="${user.id}"></td>
+                            <td th:text="${user.firstName}"></td>
+                            <td th:text="${user.lastName}"></td>
+                            <td th:text="${user.age}"></td>
+                            <td>
+                                <div th:each="role : ${user.roles}"
+                                     th:text="${role.roleName}"></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>
