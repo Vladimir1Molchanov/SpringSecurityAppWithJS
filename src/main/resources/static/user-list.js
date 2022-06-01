@@ -219,6 +219,22 @@ async function deleteUser(modal, id) {
     modal.find('.modal-footer').append(deleteButton)
     modal.find('.modal-footer').append(closeButton)
 
+    let userRoles = ''
+    await userFetchService.findAllRoles()
+        .then(res => res.json())
+        .then(roles => {
+            let first = 1
+            roles.forEach(r => {
+                    if (first !== 1) {
+                        userRoles += `<option value="${r.roleName}">${r.roleName}</option>`
+                    } else if (first === 1) {
+                        first = 0
+                        userRoles += `<option selected value="${r.roleName}">${r.roleName}</option>`
+                    }
+                }
+            )
+        })
+
     user.then(user => {
         let bodyForm = `
             <form class="form-group" id="deleteUser">
@@ -238,8 +254,7 @@ async function deleteUser(modal, id) {
                         multiple="multiple"
                         name="roles"
                         readonly="">
-                     <option selected="selected" value="ADMIN">ADMIN</option>
-                     <option value="USER">USER</option>
+                        ${userRoles}
                 </select>
             </form>
 `
