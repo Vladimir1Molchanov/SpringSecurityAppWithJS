@@ -19,7 +19,7 @@ const userFetchService = {
     addNewUser: async (user) => await fetch('api/admin', {
         method: 'POST',
         headers: userFetchService.head,
-        body: JSON.stringify(Object.fromEntries((new FormData(user)).entries()))
+        body: user
     }),
     updateUser: async (user, id) => await fetch(`api/admin/${id}`, {
         method: 'PUT',
@@ -282,36 +282,10 @@ async function deleteUser(modal, id) {
 async function addNewUser() {
     document.getElementById('createForm').addEventListener('submit', e => {
         e.preventDefault()
-        userFetchService.addNewUser(e.target)
+        let user = JSON.stringify(Object.fromEntries((new FormData(e.target)).entries()))
+        let response = userFetchService.addNewUser(user)
+        if (response.ok) {
+            getTableWithUsers()
+        }
     })
 }
-
-// async function addNewUser() {
-//     $('#addNewUserButton').click(async () => {
-//         let addUserForm = $('#defaultSomeForm')
-//         let login = addUserForm.find('#AddNewUserLogin').val().trim()
-//         let password = addUserForm.find('#AddNewUserPassword').val().trim()
-//         let age = addUserForm.find('#AddNewUserAge').val().trim()
-//         let data = {
-//             login: login,
-//             password: password,
-//             age: age
-//         }
-//         const response = await userFetchService.addNewUser(data)
-//         if (response.ok) {
-//             getTableWithUsers()
-//             addUserForm.find('#AddNewUserLogin').val('')
-//             addUserForm.find('#AddNewUserPassword').val('')
-//             addUserForm.find('#AddNewUserAge').val('')
-//         } else {
-//             let body = await response.json()
-//             let alert = `<div class="alert alert-danger alert-dismissible fade show col-12" role="alert" id="sharaBaraMessageError">
-//                             ${body.info}
-//                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-//                                 <span aria-hidden="true">&times</span>
-//                             </button>
-//                         </div>`
-//             addUserForm.prepend(alert)
-//         }
-//     })
-// }
