@@ -2,6 +2,7 @@ $(async function () {
     await getUserData()
     await getTableWithUsers()
     await getDefaultModal()
+    await addNewUser()
 })
 
 const userFetchService = {
@@ -39,7 +40,7 @@ async function getTableWithUsers() {
                 let roles = ''
                 user.authorities.forEach(r => roles += `${r.roleName} `)
                 let tableFilling = `$(
-                    <tr>
+                    <tr id="userString${user.id}">
                         <td>${user.id}</td>
                         <td>${user.firstName}</td>
                         <td>${user.lastName}</td>
@@ -111,7 +112,6 @@ async function getDefaultModal() {
 
 // редактируем юзера из модалки редактирования, забираем данные, отправляем
 async function editUser(modal, id) {
-
     modal.find('.modal-title').html('Edit user')
 
     let editButton = `<button type="button" class="btn btn-primary" id="editButton">Edit</button>`
@@ -135,9 +135,8 @@ async function editUser(modal, id) {
             )
         })
 
-    await userFetchService.findOneUser(id).then(res => res.json())
-        .then(user => {
-            let bodyForm = `
+    let user = await userFetchService.findOneUser(id).then(res => res.json())
+    let bodyForm = `
             <form class="form-group" id="editUser">
                 <b>ID</b>
                 <input class="form-control" type="text" id="id" name="id" value="${user.id}" disabled><br>
@@ -158,8 +157,8 @@ async function editUser(modal, id) {
                     ${userRoles} 
                 </select>
             </form>`
-            modal.find('.modal-body').append(bodyForm)
-        })
+    modal.find('.modal-body').append(bodyForm)
+
 
     $("#editButton").on('click', async () => {
         let id = modal.find("#id").val().trim()
@@ -194,7 +193,22 @@ async function editUser(modal, id) {
         const response = await userFetchService.updateUser(data, id)
 
         if (response.ok) {
-            await getTableWithUsers()
+            let updatedUserData = `
+            <td>${id}</td>
+            <td>${firstName}</td>
+            <td>${lastName}</td>
+            <td>${age}</td>
+            <td>${rawRoles}</td>
+            <td>
+                <button type="button" data-userId="${id}" data-action="edit" class="btn btn-primary"
+                data-toggle="modal" data-target="#someDefaultModal">Edit</button>
+            </td>
+            <td>
+                <button type="button" data-userId="${id}" data-action="delete" class="btn btn-danger"
+                data-toggle="modal" data-target="#someDefaultModal">Delete</button>
+            </td>
+            `
+            $(`#userString${user.id}`).empty().append(updatedUserData)
             modal.modal('hide')
         } else {
             let body = await response.json()
@@ -210,8 +224,6 @@ async function editUser(modal, id) {
 }
 
 async function deleteUser(modal, id) {
-    let user = await userFetchService.findOneUser(id)
-
     modal.find('.modal-title').html('Delete user')
 
     let deleteButton = `<button type="button" class="btn btn-danger" id="deleteButton">Delete</button>`
@@ -223,49 +235,36 @@ async function deleteUser(modal, id) {
     await userFetchService.findAllRoles()
         .then(res => res.json())
         .then(roles => {
-            let first = 1
             roles.forEach(r => {
-                    if (first !== 1) {
-                        userRoles += `<option value="${r.roleName}">${r.roleName}</option>`
-                    } else if (first === 1) {
-                        first = 0
-                        userRoles += `<option selected value="${r.roleName}">${r.roleName}</option>`
-                    }
+                    userRoles += `<option value="${r.roleName}">${r.roleName}</option>`
                 }
             )
         })
 
-    user.then(user => {
-        let bodyForm = `
+    let user = await userFetchService.findOneUser(id).then(res => res.json())
+    let bodyForm = `
             <form class="form-group" id="deleteUser">
                 <b>ID</b>
-                <input type="text" class="form-control" id="deleteId" name="deleteId" value="${user.id}" readonly><br>
+                <input class="form-control" type="text" value="${user.id}" disabled><br>
                 <b>First Name</b>
                 <input class="form-control" type="text" value="${user.firstName}" readonly><br>
                 <b>Last Name</b>
                 <input class="form-control" type="text" value="${user.lastName}" readonly><br>
                 <b>Age</b>
-                <input class="form-control" type="number" value="${user.age}" readonly><br>
-                <b>Password</b>
-                <input class="form-control" type="text" readonly><br>
-                <br>
+                <input class="form-control" type="text" value="${user.age}" readonly><br>
                 <b>Role</b>
-                <select class="custom-select" size="2"
-                        multiple="multiple"
-                        name="roles"
-                        readonly="">
-                        ${userRoles}
+                <select class="custom-select" size="2" readonly="readonly">
+                    ${userRoles} 
                 </select>
-            </form>
-`
-        modal.find('.modal-body').append(bodyForm)
-    })
+            </form>`
+    modal.find('.modal-body').append(bodyForm)
+
 
     $("#deleteButton").on('click', async () => {
         const response = await userFetchService.deleteUser(id)
 
         if (response.ok) {
-            await getTableWithUsers()
+            $(`#userString${user.id}`).remove()
             modal.modal('hide')
         } else {
             let body = await response.json()
@@ -280,15 +279,12 @@ async function deleteUser(modal, id) {
     })
 }
 
-const createForm = document.getElementById('createForm')
-createForm.addEventListener('submit', (e) => {
-    e.preventDefault()
-    userFetchService.addNewUser(e.target).then(async res => {
-        if (res.ok) {
-            await getTableWithUsers()
-        }
+async function addNewUser() {
+    document.getElementById('createForm').addEventListener('submit', e => {
+        e.preventDefault()
+        userFetchService.addNewUser(e.target)
     })
-})
+}
 
 // async function addNewUser() {
 //     $('#addNewUserButton').click(async () => {
