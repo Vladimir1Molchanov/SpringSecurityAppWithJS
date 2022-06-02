@@ -2,6 +2,7 @@ $(async function () {
     await getUserData()
     await getTableWithUsers()
     await getDefaultModal()
+    await getNewUserForm()
     await addNewUser()
 })
 
@@ -152,8 +153,7 @@ async function editUser(modal, id) {
                 <b>Role</b>
                 <select class="custom-select" size="2"
                         multiple="multiple"
-                        id="roles"
-                        name="roles">
+                        id="roles">
                     ${userRoles} 
                 </select>
             </form>`
@@ -279,13 +279,69 @@ async function deleteUser(modal, id) {
     })
 }
 
-async function addNewUser() {
-    document.getElementById('createForm').addEventListener('submit', e => {
+async function getNewUserForm() {
+    let newUserForm = $('#newUserForm')
+
+    let userRoles = ''
+    await userFetchService.findAllRoles()
+        .then(res => res.json())
+        .then(roles => {
+            let first = 1
+            roles.forEach(r => {
+                    if (first !== 1) {
+                        userRoles += `<option value="${r.roleName}">${r.roleName}</option>`
+                    } else if (first === 1) {
+                        first = 0
+                        userRoles += `<option selected value="${r.roleName}">${r.roleName}</option>`
+                    }
+                }
+            )
+        })
+
+    let form = `
+        <form id="createForm">
+            <br>
+            <label>
+                <b>First name</b>
+                <input name="firstName" class="form-control">
+            </label>
+            <br>
+            <label>
+                <b>Last name</b>
+                <input name="lastName" class="form-control">
+            </label>
+            <br>
+            <label>
+                <b>Age</b>
+                <input name="age" class="form-control" type="number">
+            </label>
+            <br>
+            <label>
+                <b>Password</b>
+                <input name="password" class="form-control">
+            </label>
+            <br>
+            <b>Role</b>
+            <br>
+            <select class="custom-select" size="2" style="width: 207px">
+            ${userRoles}
+            </select>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-success" id="addNewUserButton">Add new user</button>
+            <br>
+        </form>
+    `
+    newUserForm.append(form)
+}
+
+async function addNewUser(){
+    document.getElementById('createForm').addEventListener('submit', async e => {
         e.preventDefault()
         let user = JSON.stringify(Object.fromEntries((new FormData(e.target)).entries()))
-        let response = userFetchService.addNewUser(user)
+        let response = await userFetchService.addNewUser(user)
         if (response.ok) {
-            getTableWithUsers()
+            await getTableWithUsers()
         }
     })
 }
